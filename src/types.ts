@@ -19,7 +19,7 @@ export interface VinylRecord {
   updatedAt: Date;
 }
 
-export type View = 'collection' | 'add' | 'detail' | 'edit' | 'stats' | 'import-export';
+export type View = 'collection' | 'add' | 'detail' | 'edit' | 'stats' | 'import-export' | 'settings';
 
 export const FORMATS: Format[] = ['LP', 'EP', '45', '78', '10"', 'Box Set'];
 
