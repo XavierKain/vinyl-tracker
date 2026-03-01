@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vinyl Tracker — Catalog Your Record Collection Instantly</title>
+    <meta name="description" content="Vinyl Tracker is the easiest way to catalog, organize, and track your vinyl record collection. Scan barcodes, get album details from MusicBrainz, and manage your collection offline.">
+    <meta name="keywords" content="vinyl tracker, record collection app, vinyl catalog, barcode scanner vinyl, MusicBrainz, vinyl collection manager">
+    <meta name="author" content="Vinyl Tracker">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="./app/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Vinyl Tracker — Catalog Your Record Collection Instantly">
+    <meta property="og:description" content="Scan barcodes, pull album data from MusicBrainz, and manage your entire vinyl collection offline. One-time purchase, no subscriptions.">
+    <meta property="og:url" content="./app/">
+    <meta property="og:site_name" content="Vinyl Tracker">
+    <meta property="og:image" content="./app/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Vinyl Tracker — Catalog Your Record Collection Instantly">
+    <meta name="twitter:description" content="Scan barcodes, pull album data from MusicBrainz, and manage your entire vinyl collection offline.">
+    <meta name="twitter:image" content="./app/og-image.png">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Vinyl Tracker",
+        "description": "A progressive web app for vinyl record collectors. Scan barcodes, get album details from MusicBrainz, manage your collection offline.",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web",
+        "offers": {
+            "@type": "Offer",
+            "price": "4.99",
+            "priceCurrency": "USD"
+        },
+        "featureList": ["Barcode scanning","MusicBrainz API integration","Offline-first architecture","Collection statistics","Import and export","Collection management"],
+        "url": "https://vinyltracker.app"
+    }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* === RESET & VARIABLES === */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --gold: #D4A843;
+            --gold-dim: #C49A3C;
+            --gold-dark: #a07830;
+            --gold-glow: rgba(212, 168, 67, 0.12);
+            --gold-glow-strong: rgba(212, 168, 67, 0.25);
+            --bg-deep: #0D0D0D;
+            --bg: #111111;
+            --bg-raised: #141414;
+            --bg-card: #1a1a1a;
+            --bg-card-hover: #1f1f1f;
+            --text: #e8e5df;
+            --text-muted: #8a857d;
+            --text-dim: #5a5650;
+            --border: #242420;
+            --border-gold: rgba(212, 168, 67, 0.15);
+            --rule: rgba(212, 168, 67, 0.2);
+            --font-display: 'Fraunces', Georgia, serif;
+            --font-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-deep);
+            color: var(--text);
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        img { max-width: 100%; display: block; }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 28px;
+        }
+
+        /* === SECTION DIVIDER === */
+        .divider {
+            border: none;
+            height: 1px;
+            background: var(--rule);
+            margin: 0;
+        }
+
+        /* === NAV === */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(13, 13, 13, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid transparent;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        nav.scrolled {
+            background: rgba(13, 13, 13, 0.95);
+            border-bottom-color: var(--border);
+        }
+
+        nav .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 1.15rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text);
+        }
+
+        .logo-mark {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #1a1a1a, #222, #1a1a1a, #222, #1a1a1a);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-mark::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--gold);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--text); }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: var(--font-body);
+        }
+
+        .btn-gold, a.btn-gold {
+            background: var(--gold);
+            color: #0D0D0D !important;
+        }
+
+        .btn-gold:hover {
+            background: #e0b550;
+            box-shadow: 0 4px 24px rgba(212, 168, 67, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--gold-dim);
+            color: var(--gold);
+        }
+
+        .btn-lg {
+            padding: 14px 36px;
+            font-size: 0.95rem;
+            border-radius: 8px;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        /* === HERO SPLIT SCREEN === */
+        .hero {
+            padding: 140px 0 80px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .hero-content {
+            max-width: 540px;
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2.4rem, 4.5vw, 3.5rem);
+            font-weight: 800;
+            line-height: 1.12;
+            letter-spacing: -0.02em;
+            margin-bottom: 24px;
+            color: var(--text);
+            font-style: italic;
+            font-variation-settings: 'opsz' 144;
+        }
+
+        .hero h1 .gold {
+            color: var(--gold);
+        }
+
+        .hero-sub {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            line-height: 1.75;
+            margin-bottom: 36px;
+            max-width: 440px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .hero-price-note {
+            margin-top: 14px;
+            font-size: 0.82rem;
+            color: var(--text-dim);
+        }
+
+        /* === VINYL RECORD VISUAL === */
+        .hero-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .vinyl-record {
+            width: min(420px, 40vw);
+            height: min(420px, 40vw);
+            border-radius: 50%;
+            position: relative;
+            animation: spin 20s linear infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .vinyl-record .disc {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background:
+                repeating-radial-gradient(
+                    circle at center,
+                    transparent 0px,
+                    transparent 2px,
+                    rgba(40, 40, 38, 0.6) 2.5px,
+                    transparent 3px
+                ),
+                radial-gradient(
+                    circle at center,
+                    #1a1a18 0%,
+                    #111110 20%,
+                    #0e0e0d 40%,
+                    #151514 50%,
+                    #111110 60%,
+                    #0e0e0d 80%,
+                    #1a1a18 100%
+                );
+            box-shadow:
+                inset 0 0 60px rgba(0, 0, 0, 0.5),
+                0 0 80px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(255, 255, 255, 0.03);
+        }
+
+        /* Subtle light reflection on the record surface */
+        .vinyl-record .disc::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.03) 0%,
+                transparent 40%,
+                transparent 60%,
+                rgba(255, 255, 255, 0.015) 100%
+            );
+            z-index: 1;
+        }
+
+        /* Extra groove detail */
+        .vinyl-record .disc::after {
+            content: '';
+            position: absolute;
+            inset: 8%;
+            border-radius: 50%;
+            background: repeating-radial-gradient(
+                circle at center,
+                transparent 0px,
+                transparent 4px,
+                rgba(50, 48, 44, 0.3) 4.5px,
+                transparent 5px
+            );
+            z-index: 1;
+        }
+
+        .vinyl-record .label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 35%;
+            height: 35%;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle at 40% 35%,
+                #e8c565 0%,
+                #D4A843 30%,
+                #C49A3C 60%,
+                #a07830 100%
+            );
+            z-index: 2;
+            box-shadow:
+                inset 0 1px 3px rgba(255, 255, 255, 0.2),
+                inset 0 -2px 6px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(0, 0, 0, 0.3);
+        }
+
+        .vinyl-record .label::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 14%;
+            height: 14%;
+            border-radius: 50%;
+            background: var(--bg-deep);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+            z-index: 3;
+        }
+
+        /* Label text ring */
+        .vinyl-record .label::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 72%;
+            height: 72%;
+            border-radius: 50%;
+            border: 0.5px solid rgba(0, 0, 0, 0.15);
+            z-index: 3;
+        }
+
+        /* Ambient glow behind the record */
+        .hero-visual::before {
+            content: '';
+            position: absolute;
+            width: 130%;
+            height: 130%;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle,
+                rgba(212, 168, 67, 0.06) 0%,
+                rgba(212, 168, 67, 0.02) 40%,
+                transparent 70%
+            );
+            z-index: -1;
+        }
+
+        /* === FEATURES OFFSET GRID === */
+        .features-section {
+            padding: 100px 0;
+            background: var(--bg);
+        }
+
+        .features-section .section-intro {
+            margin-bottom: 64px;
+            max-width: 500px;
+        }
+
+        .section-label {
+            font-family: var(--font-body);
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+            font-weight: 700;
+            line-height: 1.15;
+            letter-spacing: -0.01em;
+            margin-bottom: 16px;
+            font-variation-settings: 'opsz' 72;
+        }
+
+        .section-sub {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: auto;
+            gap: 20px;
+        }
+
+        .feature-item {
+            background: var(--bg-raised);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 36px 32px;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+
+        .feature-item:hover {
+            border-color: var(--border-gold);
+            transform: translateY(-2px);
+        }
+
+        .feature-item:nth-child(1) { grid-column: 1 / 8; }
+        .feature-item:nth-child(2) { grid-column: 8 / 13; }
+        .feature-item:nth-child(3) { grid-column: 1 / 5; }
+        .feature-item:nth-child(4) { grid-column: 5 / 9; }
+        .feature-item:nth-child(5) { grid-column: 9 / 13; }
+        .feature-item:nth-child(6) { grid-column: 1 / 7; }
+
+        .feature-item .feature-marker {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--gold);
+            margin-bottom: 20px;
+        }
+
+        .feature-item h3 {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-variation-settings: 'opsz' 48;
+        }
+
+        .feature-item p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        /* === PULL QUOTE === */
+        .pull-quote-section {
+            padding: 100px 0;
+            background: var(--bg-deep);
+            text-align: center;
+        }
+
+        .pull-quote {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 4.5vw, 3.2rem);
+            font-weight: 500;
+            font-style: italic;
+            line-height: 1.3;
+            color: var(--text);
+            max-width: 800px;
+            margin: 0 auto;
+            font-variation-settings: 'opsz' 144;
+        }
+
+        .pull-quote .gold { color: var(--gold); }
+
+        .pull-quote-rule {
+            width: 60px;
+            height: 2px;
+            background: var(--gold);
+            border: none;
+            margin: 0 auto 40px;
+        }
+
+        /* === WHO COLLECTS === */
+        .persona-section {
+            padding: 100px 0;
+            background: var(--bg);
+        }
+
+        .persona-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: start;
+        }
+
+        .persona-text h3 {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--gold);
+            font-variation-settings: 'opsz' 48;
+        }
+
+        .persona-text p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .persona-text p:last-child { margin-bottom: 0; }
+
+        .persona-traits {
+            list-style: none;
+            margin-top: 28px;
+        }
+
+        .persona-traits li {
+            padding: 10px 0;
+            font-size: 0.9rem;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .persona-traits li:last-child { border-bottom: none; }
+
+        .trait-dash {
+            width: 16px;
+            height: 1px;
+            background: var(--gold);
+            flex-shrink: 0;
+        }
+
+        /* === PRICING SPLIT === */
+        .pricing-section {
+            padding: 100px 0;
+            background: var(--bg-deep);
+        }
+
+        .pricing-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .pricing-amount {
+            text-align: left;
+        }
+
+        .pricing-amount .price-tag {
+            font-family: var(--font-display);
+            font-size: clamp(4rem, 8vw, 6.5rem);
+            font-weight: 900;
+            color: var(--gold);
+            line-height: 1;
+            letter-spacing: -0.03em;
+            font-variation-settings: 'opsz' 144;
+        }
+
+        .pricing-amount .price-label {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            margin-bottom: 32px;
+        }
+
+        .pricing-amount .price-tagline {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--text-dim);
+            margin-bottom: 32px;
+            font-variation-settings: 'opsz' 72;
+        }
+
+        .pricing-features {
+            list-style: none;
+        }
+
+        .pricing-features li {
+            padding: 14px 0;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .pricing-features li:last-child { border-bottom: none; }
+
+        .check-mark {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--gold-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .check-mark svg {
+            width: 10px;
+            height: 10px;
+        }
+
+        /* === FAQ === */
+        .faq-section {
+            padding: 100px 0;
+            background: var(--bg);
+        }
+
+        .faq-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 80px;
+            align-items: start;
+        }
+
+        .faq-list {
+            width: 100%;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid var(--border);
+            padding: 24px 0;
+        }
+
+        .faq-item:first-child { padding-top: 0; }
+
+        .faq-item summary {
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            color: var(--text);
+            transition: color 0.2s;
+        }
+
+        .faq-item summary:hover { color: var(--gold); }
+
+        .faq-item summary::-webkit-details-marker { display: none; }
+
+        .faq-item summary::after {
+            content: '+';
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            flex-shrink: 0;
+            font-weight: 400;
+            transition: transform 0.2s;
+        }
+
+        .faq-item[open] summary::after {
+            content: '\2212';
+        }
+
+        .faq-item p {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            margin-top: 14px;
+            line-height: 1.75;
+        }
+
+        /* === FOOTER === */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 48px 0;
+            background: var(--bg-deep);
+        }
+
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-copy {
+            font-size: 0.83rem;
+            color: var(--text-dim);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 28px;
+            list-style: none;
+        }
+
+        .footer-links a {
+            font-size: 0.83rem;
+            color: var(--text-muted);
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--gold); }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 960px) {
+            .hero .container {
+                grid-template-columns: 1fr;
+                gap: 48px;
+                text-align: center;
+            }
+
+            .hero-content {
+                max-width: 100%;
+                order: 2;
+            }
+
+            .hero-visual {
+                order: 1;
+            }
+
+            .hero-sub {
+                max-width: 100%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .vinyl-record {
+                width: min(300px, 60vw);
+                height: min(300px, 60vw);
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .feature-item:nth-child(1),
+            .feature-item:nth-child(2),
+            .feature-item:nth-child(3),
+            .feature-item:nth-child(4),
+            .feature-item:nth-child(5),
+            .feature-item:nth-child(6) {
+                grid-column: auto;
+            }
+
+            .persona-grid,
+            .pricing-split,
+            .faq-layout {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .pricing-amount {
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .menu-toggle { display: block; }
+
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 64px;
+                left: 0;
+                right: 0;
+                background: rgba(13, 13, 13, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                padding: 24px 28px;
+                gap: 16px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .nav-links.open { display: flex; }
+
+            .hero {
+                padding: 120px 0 60px;
+                min-height: auto;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-item:nth-child(1),
+            .feature-item:nth-child(2),
+            .feature-item:nth-child(3),
+            .feature-item:nth-child(4),
+            .feature-item:nth-child(5),
+            .feature-item:nth-child(6) {
+                grid-column: 1;
+            }
+
+            .features-section,
+            .pull-quote-section,
+            .persona-section,
+            .pricing-section,
+            .faq-section {
+                padding: 64px 0;
+            }
+
+            .hero-price-note {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="main-nav">
+    <div class="container">
+        <a href="/vinyl-tracker/" class="logo">
+            <span class="logo-mark"></span>
+            Vinyl Tracker
+        </a>
+        <button class="menu-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+        </button>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="/vinyl-tracker/blog/">Blog</a></li>
+            <li><a href="./app/" class="btn btn-gold">Get the App</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="top">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Every groove.<br>Every pressing.<br><span class="gold">Accounted for.</span></h1>
+            <p class="hero-sub">Scan a barcode, pull album details from MusicBrainz, and build a meticulous catalog of your vinyl collection. Offline-first. No subscriptions. No nonsense.</p>
+            <div class="hero-buttons">
+                <a href="./app/" class="btn btn-gold btn-lg">Start Cataloging &mdash; $4.99</a>
+                <a href="#features" class="btn btn-outline btn-lg">See How It Works</a>
+            </div>
+            <p class="hero-price-note">One-time purchase. Runs in your browser. Your data stays on your device.</p>
+        </div>
+        <div class="hero-visual">
+            <div class="vinyl-record">
+                <div class="disc"></div>
+                <div class="label"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- FEATURES -->
+<section class="features-section" id="features">
+    <div class="container">
+        <div class="section-intro">
+            <p class="section-label">Features</p>
+            <h2 class="section-title">Built for the way collectors actually work</h2>
+            <p class="section-sub">No bloat. No ads. No monthly toll. Just the tools you need to know exactly what sits on your shelves.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="feature-marker"></div>
+                <h3>Barcode Scanning</h3>
+                <p>Point your camera at any UPC or EAN barcode on a vinyl sleeve. The record is identified in seconds and added to your catalog with full metadata. No typing, no guessing.</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-marker"></div>
+                <h3>MusicBrainz Auto-Fill</h3>
+                <p>Artist, album, tracklist, label, release year, pressing details. All pulled automatically from the world's largest open music database.</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-marker"></div>
+                <h3>Collection Stats</h3>
+                <p>Total records, genres, decades, most-collected artists. See your collection from above.</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-marker"></div>
+                <h3>Offline-First</h3>
+                <p>Your catalog lives on your device. Browse, search, and edit without a connection. Your data never touches our servers.</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-marker"></div>
+                <h3>Import / Export</h3>
+                <p>Bring your Discogs collection via CSV. Export anytime as CSV or JSON. Zero lock-in.</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-marker"></div>
+                <h3>Fast PWA</h3>
+                <p>Installs to your home screen like a native app. No app store. Loads in milliseconds. Built on IndexedDB and localStorage for instant catalog access on any device.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- PULL QUOTE -->
+<section class="pull-quote-section">
+    <div class="container">
+        <hr class="pull-quote-rule">
+        <blockquote class="pull-quote">
+            &ldquo;Your records deserve better than <span class="gold">a spreadsheet.</span>&rdquo;
+        </blockquote>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- WHO COLLECTS -->
+<section class="persona-section" id="who">
+    <div class="container">
+        <div class="persona-grid">
+            <div>
+                <p class="section-label">Who is this for</p>
+                <h2 class="section-title">Collectors who give a damn</h2>
+                <p class="section-sub">Vinyl Tracker is not for everyone. It's for the people who actually care about what they own.</p>
+            </div>
+            <div class="persona-text">
+                <h3>The Serious Collector</h3>
+                <p>You have 50, 200, maybe 1,000 records. You know the difference between a first pressing and a reissue. You want to know exactly what you own, where it came from, and whether that second copy of Rumours is the same pressing or a different one.</p>
+                <p>You have tried spreadsheets. You have tried notes apps. You have tried Discogs, but you want something that works offline, loads instantly, and does not ask for a monthly subscription just to view your own collection.</p>
+                <p>Vinyl Tracker was built for you.</p>
+                <ul class="persona-traits">
+                    <li><span class="trait-dash"></span> Owns 50+ vinyl records and still buying</li>
+                    <li><span class="trait-dash"></span> Wants a proper catalog, not a notes app</li>
+                    <li><span class="trait-dash"></span> Cares about pressings, labels, and release details</li>
+                    <li><span class="trait-dash"></span> Refuses to pay monthly for a collection tool</li>
+                    <li><span class="trait-dash"></span> Wants data on their device, not in someone else's cloud</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+    <div class="container">
+        <div class="pricing-split">
+            <div class="pricing-amount">
+                <p class="section-label">Pricing</p>
+                <div class="price-tag">$4.99</div>
+                <p class="price-label">One-time payment. Lifetime access.</p>
+                <p class="price-tagline">No subscriptions. No tiers. No upgrade nags. Pay once, catalog forever.</p>
+                <a href="./app/" class="btn btn-gold btn-lg">Get Vinyl Tracker</a>
+            </div>
+            <div>
+                <ul class="pricing-features">
+                    <li>
+                        <span class="check-mark"><svg viewBox="0 0 12 12" fill="none" stroke="#D4A843" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2.5 6 5 8.5 9.5 3.5"/></svg></span>
+                        Unlimited records in your catalog
+                    </li>
+                    <li>
+                        <span class="check-mark"><svg viewBox="0 0 12 12" fill="none" stroke="#D4A843" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2.5 6 5 8.5 9.5 3.5"/></svg></span>
+                        Barcode scanning with camera
+                    </li>
+                    <li>
+                        <span class="check-mark"><svg viewBox="0 0 12 12" fill="none" stroke="#D4A843" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2.5 6 5 8.5 9.5 3.5"/></svg></span>
+                        MusicBrainz metadata lookup
+                    </li>
+                    <li>
+                        <span class="check-mark"><svg viewBox="0 0 12 12" fill="none" stroke="#D4A843" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2.5 6 5 8.5 9.5 3.5"/></svg></span>
+                        Collection statistics and insights
+                    </li>
+                    <li>
+                        <span class="check-mark"><svg viewBox="0 0 12 12" fill="none" stroke="#D4A843" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2.5 6 5 8.5 9.5 3.5"/></svg></span>
+                        Import from Discogs or CSV
+                    </li>
+                    <li>
+                        <span class="check-mark"><svg viewBox="0 0 12 12" fill="none" stroke="#D4A843" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2.5 6 5 8.5 9.5 3.5"/></svg></span>
+                        Export to CSV or JSON anytime
+                    </li>
+                    <li>
+                        <span class="check-mark"><svg viewBox="0 0 12 12" fill="none" stroke="#D4A843" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2.5 6 5 8.5 9.5 3.5"/></svg></span>
+                        Full offline access
+                    </li>
+                    <li>
+                        <span class="check-mark"><svg viewBox="0 0 12 12" fill="none" stroke="#D4A843" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2.5 6 5 8.5 9.5 3.5"/></svg></span>
+                        All future updates included
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- FAQ -->
+<section class="faq-section" id="faq">
+    <div class="container">
+        <div class="faq-layout">
+            <div>
+                <p class="section-label">FAQ</p>
+                <h2 class="section-title">Common questions</h2>
+            </div>
+            <div class="faq-list">
+                <details class="faq-item">
+                    <summary>Does Vinyl Tracker work without internet?</summary>
+                    <p>Yes. Vinyl Tracker is built offline-first. Your entire collection is stored locally on your device using IndexedDB and localStorage. You can browse, search, and edit your catalog without any internet connection. You only need internet when scanning a new barcode to fetch album data from MusicBrainz.</p>
+                </details>
+                <details class="faq-item">
+                    <summary>Can I import my Discogs collection?</summary>
+                    <p>Absolutely. Export your Discogs collection as a CSV file and import it directly into Vinyl Tracker. The app will match your records against MusicBrainz to fill in any missing metadata. You can also import from any standard CSV format.</p>
+                </details>
+                <details class="faq-item">
+                    <summary>What devices does it run on?</summary>
+                    <p>Vinyl Tracker is a Progressive Web App (PWA), so it runs in any modern browser on any device: iPhone, Android, iPad, laptop, desktop. Install it to your home screen for a native app experience. No app store required.</p>
+                </details>
+                <details class="faq-item">
+                    <summary>Where is my data stored?</summary>
+                    <p>Your data lives entirely on your device. There are no servers storing your collection. You can export your entire catalog as JSON or CSV at any time for backup. Your data is yours; it is never uploaded, never sold, never lost on someone else's server.</p>
+                </details>
+                <details class="faq-item">
+                    <summary>What happens if I clear my browser data?</summary>
+                    <p>Since your collection is stored in your browser's local storage, clearing browser data would remove it. That's why we include full export functionality. We recommend exporting a backup periodically. You can re-import it instantly if needed.</p>
+                </details>
+                <details class="faq-item">
+                    <summary>Is there a free trial?</summary>
+                    <p>Vinyl Tracker is a one-time $4.99 purchase. There is no trial, but there is also no subscription, no ads, and no hidden costs. You pay once and own it forever. If you catalog even a handful of records with it, it has already paid for itself in time saved.</p>
+                </details>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="container">
+        <div class="footer-inner">
+            <span class="footer-copy">&copy; 2025 Vinyl Tracker. All rights reserved.</span>
+            <ul class="footer-links">
+                <li><a href="/vinyl-tracker/blog/">Blog</a></li>
+                <li><a href="https://github.com/xavierkain/vinyl-tracker">GitHub</a></li>
+                <li><a href="./app/">Privacy</a></li>
+            </ul>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Sticky nav opacity on scroll
+    (function() {
+        var nav = document.getElementById('main-nav');
+        var scrolled = false;
+        function onScroll() {
+            var shouldBeScrolled = window.scrollY > 40;
+            if (shouldBeScrolled !== scrolled) {
+                scrolled = shouldBeScrolled;
+                if (scrolled) {
+                    nav.classList.add('scrolled');
+                } else {
+                    nav.classList.remove('scrolled');
+                }
+            }
+        }
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+    })();
+</script>
+
+</body>
+</html>
