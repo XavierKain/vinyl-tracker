@@ -37,7 +37,7 @@ export default function App() {
           </svg>
           <span className="text-sm font-bold text-white">Vinyl Tracker</span>
         </button>
-        <span className="text-xs text-gray-600">{records.length} records</span>
+        <span className="text-xs text-gray-600">{records.length} {records.length === 1 ? "record" : "records"}</span>
       </header>
 
       {/* Content */}
@@ -90,8 +90,8 @@ export default function App() {
       </main>
 
       {/* Bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 border-t border-gray-800 bg-gray-950/95 backdrop-blur">
-        <div className="mx-auto flex max-w-2xl">
+      <nav className="fixed bottom-0 left-0 right-0 border-t border-gray-800 bg-gray-950/95 backdrop-blur pb-[env(safe-area-inset-bottom)]">
+        <div className="mx-auto flex max-w-2xl px-4">
           <NavBtn
             active={view === 'collection'}
             onClick={() => navigate('collection')}

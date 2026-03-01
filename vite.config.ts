@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  base: '/vinyl-tracker/',
+  base: './',
   plugins: [
     react(),
     tailwindcss(),
@@ -17,10 +17,11 @@ export default defineConfig({
         theme_color: '#0a0a0a',
         background_color: '#0a0a0a',
         display: 'standalone',
+        orientation: 'portrait',
         icons: [
-          { src: '/vinyl-tracker/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/vinyl-tracker/icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: '/vinyl-tracker/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {

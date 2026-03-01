@@ -160,7 +160,7 @@ export default function ImportExport({ records, onImport }: Props) {
           disabled={records.length === 0}
           className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-500 disabled:opacity-40"
         >
-          Export CSV ({records.length} records)
+          Export CSV ({records.length} {records.length === 1 ? "record" : "records"})
         </button>
       </div>
 

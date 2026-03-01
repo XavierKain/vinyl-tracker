@@ -136,7 +136,7 @@ export default function RecordForm({ initial, onSave, onCancel }: Props) {
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <div>
             <label className={labelClass}>Year</label>
             <input
